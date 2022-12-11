@@ -1,23 +1,25 @@
+use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 use std::ops::Index;
 use std::vec::Vec;
 use rand::prelude::*;
 
 #[derive(Debug)]
-#[derive(Hash, Clone, Copy)]
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct Edge {
     pub u: i32,
     pub v: i32,
 }
 
-impl PartialEq for Edge {
-    fn eq(&self, other: &Self) -> bool {
-        self.u == other.u && self.v == other.v
-            || self.u == other.v && self.v == other.u
+impl Edge {
+    pub fn new(u: i32, v: i32) -> Self {
+        Self {
+            u: min(u, v),
+            v: max(u, v),
+        }
     }
 }
-
-impl Eq for Edge {}
 
 #[derive(Debug)]
 pub struct Graph {
@@ -32,7 +34,7 @@ macro_rules! graph {
             let mut g = Graph::new();
             $(
                 $(
-                    g.add_edge(Edge{u:$from, v:$to});
+                    g.add_edge(Edge::new($from, $to));
                 )*
             )*
             g
@@ -81,7 +83,7 @@ impl Graph {
     }
 
     pub fn is_connected(&self, u: i32, v: i32) -> bool {
-        self.edges.contains(&Edge { u, v })
+        self.edges.contains(&Edge::new(u, v))
     }
 
     pub fn is_clique(&self, vert: &Vec<i32>) -> bool {
@@ -162,16 +164,20 @@ impl Graph {
     }
 
     pub fn vizing_recolor(&self, u: i32, c: &mut HashMap<Edge, u32>, alpha: u32, beta: u32) {
+        if alpha == beta {
+            return;
+        }
+
         let mut colors: Vec<u32> = vec!{};
-        let mut vertecies: Vec<i32> = vec!{};
+        let mut vertices: Vec<i32> = vec!{};
 
         let mut U: HashSet<i32> = self.neighbours(u);
         let mut current_color = alpha;
 
-        while let Some(w) = U.iter().copied().filter(|&w| *c.get(&Edge{u, v:w}).unwrap() == current_color).next() {
+        while let Some(w) = U.iter().copied().filter(|&w| *c.get(&Edge::new(u, w)).unwrap() == current_color).next() {
             U.remove(&w);
 
-            vertecies.push(w);
+            vertices.push(w);
             colors.push(current_color);
 
             current_color = self.unused_edge_color(w, c);
@@ -181,35 +187,60 @@ impl Graph {
             colors.remove(0);
             colors.push(current_color);
 
-            for (&v, a) in vertecies.iter().zip(colors) {
-                c.insert(Edge{u, v}, a);
+            for (&v, a) in vertices.iter().zip(colors) {
+                c.insert(Edge::new(u, v), a);
             }
         } else {
             let j = colors.iter().position(|&x| x == current_color).unwrap();
-            let vj = *vertecies.get(j).unwrap();
+            let vj = *vertices.get(j).unwrap();
 
             colors.remove(0);
 
-            for (&v, a) in vertecies.iter().zip(colors).take(j) {
-                c.insert(Edge{u, v}, a);
+            for (&v, a) in vertices.iter().zip(colors).take(j) {
+                c.insert(Edge::new(u, v), a);
             }
 
-            c.remove(&Edge{u,v:vj});
+            c.remove(&Edge::new(u, vj));
 
             let mut prev = u;
             let mut next = vj;
             let mut col = beta;
-            while let Some(v) = self.neighbours(next).iter().copied().filter(|&v| c.get(&Edge{u:next, v}) == Some(&col)).next() {
-                c.insert(Edge{u:prev,v:next}, col);
-                c.remove(&Edge{u:next,v:v});
+            while let Some(v) = self.neighbours(next).iter().copied().filter(|&v| c.get(&Edge::new(next, v)) == Some(&col)).next() {
+                c.insert(Edge::new(prev, next), col);
+                c.remove(&Edge::new(next, v));
 
                 col = if col == beta { current_color } else { beta };
                 prev = next;
                 next = v;
             }
 
-            c.insert(Edge{u:prev, v:next}, col);
+            c.insert(Edge::new(prev, next), col);
         }
+    }
+
+    pub fn vizing_ecol(&self) -> HashMap<Edge, u32> {
+        let mut c: HashMap<Edge, u32> = HashMap::new();
+        let mut g_new = Graph{vertices: self.vertices.clone(), edges: vec!{}};
+
+        let mut deg: u32 = 0;
+
+        for &e in &self.edges {
+            if g_new.degree(e.u) == deg as usize || g_new.degree(e.v) == deg as usize {
+                deg += 1;
+
+                c.insert(e, deg + 1);
+            } else {
+                let alpha = g_new.unused_edge_color(e.v, &c);
+                let beta = g_new.unused_edge_color(e.u, &c);
+
+                g_new.vizing_recolor(e.u, &mut c, alpha, beta);
+                c.insert(e, alpha);
+            }
+
+            g_new.add_edge(e);
+        }
+
+        c
     }
 }
 
@@ -226,11 +257,11 @@ pub fn johnson_witness(i: i32) -> Graph {
     let offset = 2_i32.pow(i as u32 - 1);
 
     for e in prev.edges {
-        g.add_edge(Edge{u: e.u + offset, v: e.v + offset});
+        g.add_edge(Edge::new(e.u + offset, e.v + offset));
     }
 
     for j in 1..=offset {
-        g.add_edge(Edge{u: j, v: j + offset});
+        g.add_edge(Edge::new(j, j + offset));
     }
 
     g

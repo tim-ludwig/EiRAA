@@ -48,4 +48,15 @@ fn main() {
     println!("{:?}", c.get(&Edge{u: 14, v: 15}));
     println!("{:?}", c.get(&Edge{u: 15, v: 16}));
     println!("{:?}", c.get(&Edge{u: 16, v: 17}));
+    println!();
+
+    let g = graph!{
+        0 => 1;
+        1 => 2;
+        2 => 3;
+        3 => 4;
+        4 => 0
+    };
+
+    println!("{:?}", g.vizing_ecol());
 }
