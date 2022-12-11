@@ -1,4 +1,5 @@
 mod graph;
+mod cnf;
 
 use graph::*;
 
