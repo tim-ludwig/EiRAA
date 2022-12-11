@@ -242,6 +242,24 @@ impl Graph {
 
         c
     }
+
+    pub fn min_spanning_tree(&self, weights: &HashMap<Edge, u32>) -> Graph {
+        let mut g = graph!{};
+        if self.vertices.is_empty() {
+            return g;
+        }
+
+        g.vertices.push(*self.vertices.get(0).unwrap());
+
+        while let Some(e) = self.edges.iter().copied()
+                                .filter(|e| g.vertices.contains(&e.u) && !g.vertices.contains(&e.v)
+                                    || g.vertices.contains(&e.v) && !g.vertices.contains(&e.u))
+                                .min_by_key(|e| weights.get(e).expect("All edges need a weight")) {
+            g.add_edge(e);
+        }
+
+        g
+    }
 }
 
 pub fn johnson_witness(i: i32) -> Graph {

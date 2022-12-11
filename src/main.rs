@@ -57,8 +57,20 @@ fn main() {
         1 => 2;
         2 => 3;
         3 => 4;
-        4 => 0
+        4 => 0;
+        1 => 4
     };
 
     println!("{:#?}", g.vizing_ecol());
+
+    let mut weights = HashMap::new();
+
+    weights.insert(Edge::new(0, 1), 5);
+    weights.insert(Edge::new(1, 2), 4);
+    weights.insert(Edge::new(2, 3), 3);
+    weights.insert(Edge::new(3, 4), 2);
+    weights.insert(Edge::new(4, 0), 1);
+    weights.insert(Edge::new(4, 1), 3);
+
+    dbg!(&g.min_spanning_tree(&weights));
 }
