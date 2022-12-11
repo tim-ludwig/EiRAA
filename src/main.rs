@@ -49,6 +49,8 @@ fn main() {
     println!("{:?}", c.get(&Edge{u: 15, v: 16}));
     println!("{:?}", c.get(&Edge{u: 16, v: 17}));
     println!();
+    
+    println!("{:#?}", g.vizing_ecol());
 
     let g = graph!{
         0 => 1;
@@ -58,5 +60,5 @@ fn main() {
         4 => 0
     };
 
-    println!("{:?}", g.vizing_ecol());
+    println!("{:#?}", g.vizing_ecol());
 }
