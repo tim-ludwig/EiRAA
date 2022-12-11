@@ -1,9 +1,10 @@
 use std::collections::{HashMap, HashSet};
+use std::ops::Index;
 use std::vec::Vec;
 use rand::prelude::*;
 
 #[derive(Debug)]
-#[derive(Hash)]
+#[derive(Hash, Clone, Copy)]
 pub struct Edge {
     pub u: i32,
     pub v: i32,
@@ -63,6 +64,13 @@ impl Graph {
         self.edges.iter()
             .filter(|e| e.u == u || e.v == u)
             .count()
+    }
+
+    pub fn incident_edges(&self, u: i32) -> HashSet<Edge> {
+        self.edges.iter()
+            .copied()
+            .filter(|e| e.u == u || e.v == u)
+            .collect()
     }
 
     pub fn neighbours(&self, u: i32) -> HashSet<i32> {
@@ -139,6 +147,69 @@ impl Graph {
         }
 
         c
+    }
+
+    fn unused_edge_color(&self, u: i32, c: &HashMap<Edge, u32>) -> u32 {
+        let mut i = 1;
+        let colors: HashSet<u32> = self.incident_edges(u).iter().copied().map(|e| c.get(&e)).filter(|o| o.is_some()).map(|o| *o.unwrap()).collect();
+        loop {
+            if !colors.contains(&i) {
+                return i;
+            }
+
+            i += 1;
+        }
+    }
+
+    pub fn vizing_recolor(&self, u: i32, c: &mut HashMap<Edge, u32>, alpha: u32, beta: u32) {
+        let mut colors: Vec<u32> = vec!{};
+        let mut vertecies: Vec<i32> = vec!{};
+
+        let mut U: HashSet<i32> = self.neighbours(u);
+        let mut current_color = alpha;
+
+        while let Some(w) = U.iter().copied().filter(|&w| *c.get(&Edge{u, v:w}).unwrap() == current_color).next() {
+            U.remove(&w);
+
+            vertecies.push(w);
+            colors.push(current_color);
+
+            current_color = self.unused_edge_color(w, c);
+        }
+
+        if !colors.contains(&current_color) {
+            colors.remove(0);
+            colors.push(current_color);
+
+            for (&v, a) in vertecies.iter().zip(colors) {
+                c.insert(Edge{u, v}, a);
+            }
+        } else {
+            let j = colors.iter().position(|&x| x == current_color).unwrap();
+            let vj = *vertecies.get(j).unwrap();
+
+            colors.remove(0);
+
+            for (&v, a) in vertecies.iter().zip(colors).take(j) {
+                c.insert(Edge{u, v}, a);
+            }
+
+            c.remove(&Edge{u,v:vj});
+
+            let mut prev = u;
+            let mut next = vj;
+            let mut col = beta;
+            while let Some(v) = self.neighbours(next).iter().copied().filter(|&v| c.get(&Edge{u:next, v}) == Some(&col)).next() {
+                c.insert(Edge{u:prev,v:next}, col);
+                c.remove(&Edge{u:next,v:v});
+
+                col = if col == beta { current_color } else { beta };
+                prev = next;
+                next = v;
+            }
+
+            c.insert(Edge{u:prev, v:next}, col);
+        }
     }
 }
 
