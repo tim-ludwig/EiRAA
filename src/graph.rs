@@ -253,7 +253,7 @@ impl Graph {
 
         while let Some(e) = self.edges.iter().copied()
                                 .filter(|e| g.vertices.contains(&e.u) && !g.vertices.contains(&e.v)
-                                    || g.vertices.contains(&e.v) && !g.vertices.contains(&e.u))
+                                         || g.vertices.contains(&e.v) && !g.vertices.contains(&e.u))
                                 .min_by_key(|e| weights.get(e).expect("All edges need a weight")) {
             g.add_edge(e);
         }
