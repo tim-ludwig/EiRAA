@@ -1,0 +1,10 @@
+- [ ] Cloud prüfsumme
+- [ ] Random quicksort
+- [x] Schoening 3sat (random_3sat) mit probability amplification
+- [ ] randomisiertes Teilstringmatching (Bitfolge)
+- [ ] Greedy vertex colouring (immer kleinste in der Nachbarschaft nicht vergebene)
+- [x] Johnson vertex colouring
+  - [ ] zeugen gegen Johnson
+- [x] Viesing
+- [ ] TSP
+- [ ] Eulerkreis auf einem Multigraphen suchen
