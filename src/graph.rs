@@ -361,6 +361,9 @@ impl<'a> dot::Labeller<'a, Nd, Ed<'a>> for Graph {
     fn edge_color(&'a self, e: &Ed<'a>) -> Option<dot::LabelText<'a>> {
         Some(dot::LabelText::LabelStr(crate::vars::getColor(e.u).into()))
     }
+    fn kind(&self) -> dot::Kind {
+        dot::Kind::Graph
+    }
 }
 impl<'a> dot::GraphWalk<'a, Nd, Ed<'a>> for Graph {
     fn nodes(&self) -> dot::Nodes<'a, Nd> {
