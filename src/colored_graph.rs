@@ -1,25 +1,21 @@
-use std::cmp::{ max, min };
-use std::collections::{ HashMap, HashSet };
-use std::hash::{ Hash };
+use std::collections::HashMap;
 
-use std::vec::Vec;
-use rand::prelude::*;
-use std::{ io::Write };
+use std::io::Write;
 
-use crate::{ Graph, graph };
+use crate::Graph;
 use crate::Edge;
-
 type Nd = i32;
 type Ed = Edge;
-#[derive(Debug)]
+
 pub struct ColoredGraph {
     pub graph: Graph,
+    colorizer: fn(&Graph) -> HashMap<Edge, u32>,
     pub edge_colors: HashMap<crate::Edge, u32>,
 }
 
 impl ColoredGraph {
-    pub fn new(g: Graph) -> ColoredGraph {
-        ColoredGraph { graph: g, edge_colors: HashMap::new() }
+    pub fn new(g: Graph, c: fn(&Graph) -> HashMap<Edge, u32>) -> ColoredGraph {
+        ColoredGraph { graph: g, colorizer: c, edge_colors: HashMap::new() }
     }
 
     fn colorize(&mut self) -> () {
@@ -29,6 +25,7 @@ impl ColoredGraph {
     fn clone(&self) -> ColoredGraph {
         ColoredGraph {
             graph: self.graph.clone(),
+            colorizer: self.colorizer,
             edge_colors: self.edge_colors.clone(),
         }
     }

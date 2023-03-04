@@ -22,7 +22,7 @@ fn main() {
         16 => 17
     };
     let mut f = File::create("example1.dot").unwrap();
-    colored_graph::render_to(ColoredGraph::new(g.clone()), &mut f);
+    colored_graph::render_to(ColoredGraph::new(g.clone(), Graph::vizing_ecol), &mut f);
 
     let mut c: HashMap<Edge, u32> = HashMap::new();
 
@@ -70,7 +70,7 @@ fn main() {
         1 => 4
     };
     let mut f2 = File::create("example2.dot").unwrap();
-    colored_graph::render_to(ColoredGraph::new(g.clone()), &mut f2);
+    colored_graph::render_to(ColoredGraph::new(g.clone(), Graph::vizing_ecol), &mut f2);
 
     println!(
         "{:#?}",
