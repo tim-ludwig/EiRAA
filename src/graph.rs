@@ -6,8 +6,6 @@ use std::vec::Vec;
 use rand::prelude::*;
 use std::{ io::Write };
 
-type Nd = i32;
-type Ed<'a> = &'a Edge;
 #[derive(Debug)]
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct Edge {
@@ -302,6 +300,10 @@ impl Graph {
 
         g
     }
+
+    pub(crate) fn clone(&self) -> Graph {
+        Graph { vertices: self.vertices.clone(), edges: self.edges.clone() }
+    }
 }
 
 #[allow(dead_code)]
@@ -327,58 +329,4 @@ pub fn johnson_witness(i: i32) -> Graph {
     }
 
     g
-}
-
-pub fn render_to<W: Write>(output: &mut W) {
-    let g =
-        graph! {
-        0 => 1, 2, 3, 4;
-        1 => 5, 6;
-        2 => 7, 8;
-        3 => 9, 10, 14;
-        4 => 11, 12, 13;
-        14 => 15;
-        15 => 16;
-        16 => 17
-    };
-
-    dot::render(&g, output).unwrap()
-}
-
-impl<'a> dot::Labeller<'a, Nd, Ed<'a>> for Graph {
-    fn graph_id(&'a self) -> dot::Id<'a> {
-        dot::Id::new("example2").unwrap()
-    }
-    fn node_id(&'a self, n: &Nd) -> dot::Id<'a> {
-        dot::Id::new(format!("N{}", n)).unwrap()
-    }
-    fn node_label<'b>(&'b self, n: &Nd) -> dot::LabelText<'b> {
-        dot::LabelText::LabelStr(self.vertices[*n as usize].to_string().into())
-    }
-    fn edge_label<'b>(&'b self, _: &Ed) -> dot::LabelText<'b> {
-        dot::LabelText::LabelStr("".into())
-    }
-    fn edge_color(&'a self, e: &Ed<'a>) -> Option<dot::LabelText<'a>> {
-        Some(dot::LabelText::LabelStr(crate::vars::getColor(e.u).into()))
-    }
-    fn kind(&self) -> dot::Kind {
-        dot::Kind::Graph
-    }
-}
-impl<'a> dot::GraphWalk<'a, Nd, Ed<'a>> for Graph {
-    fn nodes(&self) -> dot::Nodes<'a, Nd> {
-        self.vertices
-            .iter()
-            .map(|&n| n)
-            .collect()
-    }
-    fn edges(&'a self) -> dot::Edges<'a, Ed<'a>> {
-        self.edges.iter().collect()
-    }
-    fn source(&self, e: &Ed) -> Nd {
-        e.u
-    }
-    fn target(&self, e: &Ed) -> Nd {
-        e.v
-    }
 }

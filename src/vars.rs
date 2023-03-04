@@ -1,4 +1,4 @@
-pub fn getColor(color: i32) -> String {
+pub fn getColor(color: u32) -> String {
     // this method returns the color an edge can have or black if it is above the limit
     let colors = [
         "#01a120",

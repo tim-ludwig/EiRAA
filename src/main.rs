@@ -1,13 +1,14 @@
 mod graph;
 mod cnf;
+mod colored_graph;
 mod vars;
 use std::collections::HashMap;
 use graph::*;
 
+use crate::colored_graph::ColoredGraph;
+
 fn main() {
     use std::fs::File;
-    let mut f = File::create("example1.dot").unwrap();
-    graph::render_to(&mut f);
 
     let g =
         graph! {
@@ -20,6 +21,8 @@ fn main() {
         15 => 16;
         16 => 17
     };
+    let mut f = File::create("example1.dot").unwrap();
+    colored_graph::render_to(ColoredGraph::new(g.clone()), &mut f);
 
     let mut c: HashMap<Edge, u32> = HashMap::new();
 
@@ -66,6 +69,8 @@ fn main() {
         4 => 0;
         1 => 4
     };
+    let mut f2 = File::create("example2.dot").unwrap();
+    colored_graph::render_to(ColoredGraph::new(g.clone()), &mut f2);
 
     println!(
         "{:#?}",
