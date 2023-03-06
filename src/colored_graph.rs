@@ -43,7 +43,7 @@ impl<'a> dot::Labeller<'a, Nd, Ed> for ColoredGraph {
         dot::Id::new(format!("N{}", n)).unwrap()
     }
     fn node_label<'b>(&'b self, n: &Nd) -> dot::LabelText<'b> {
-        dot::LabelText::LabelStr(self.graph.vertices[*n as usize].to_string().into())
+        dot::LabelText::LabelStr(format!("{}", n).into())
     }
     fn edge_label<'b>(&'b self, _: &Ed) -> dot::LabelText<'b> {
         dot::LabelText::LabelStr("".into())
