@@ -214,7 +214,10 @@ impl Graph {
         }
 
         if !colors.contains(&current_color) {
-            colors.remove(0);
+            if colors.len() != 0 {
+                colors.remove(0);
+            }
+
             colors.push(current_color);
 
             for (&v, a) in vertices.iter().zip(colors) {
