@@ -106,6 +106,13 @@ impl Graph {
         where R: Rng, F: Fn(usize) -> usize
     {
         let n = self.vertices.len();
+        // k size of searched clique
+        // q is exponent of 2 in the formula
+        // n ^k (versagenswahrscheinlichkeit) * q(n) (exponent für versagenswahrscheinlichkeit)
+        // n ^k * q(n) * ln(2)
+        // n ^ k === Polynom welches angibt, wie schell sich unser algorithmus
+
+        // von (1 - (1 / n^k)) zu (2 ^ (-q(n)))  => gegen 0 für viele iterationen
         let t = (((n.pow(k as u32) * q(n)) as f32) * (2f32).ln()).ceil() as usize;
 
         for _ in 0..t {
