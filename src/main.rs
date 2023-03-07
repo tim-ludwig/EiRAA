@@ -2,8 +2,10 @@ mod graph;
 mod cnf;
 mod colored_graph;
 mod vars;
+pub mod dummies;
 use std::collections::HashMap;
 use graph::*;
+use dummies::EmptyColorizer;
 
 use crate::colored_graph::ColoredGraph;
 
@@ -16,13 +18,21 @@ fn main() {
         1 => 5, 6;
         2 => 7, 8;
         3 => 9, 10, 14;
-        4 => 11, 12, 13;
+        4 => 11, 13;
+        12 => 17;
         14 => 15;
         15 => 16;
-        16 => 17
+        16 => 17;
+        17 => 18;
+        18 => 19;
+        19 => 20;
+        20 => 21
     };
     let mut f = File::create("example1.dot").unwrap();
-    colored_graph::render_to(ColoredGraph::new(g.clone(), Graph::vizing_ecol), &mut f);
+    colored_graph::render_to(
+        ColoredGraph::new(g.clone(), EmptyColorizer::edge_coloring, Graph::johnson_vcol),
+        &mut f
+    );
 
     let mut c: HashMap<Edge, u32> = HashMap::new();
 
@@ -70,7 +80,10 @@ fn main() {
         1 => 4
     };
     let mut f2 = File::create("example2.dot").unwrap();
-    colored_graph::render_to(ColoredGraph::new(g.clone(), Graph::vizing_ecol), &mut f2);
+    colored_graph::render_to(
+        ColoredGraph::new(g.clone(), Graph::vizing_ecol, Graph::johnson_vcol),
+        &mut f2
+    );
 
     println!(
         "{:#?}",

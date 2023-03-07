@@ -146,8 +146,8 @@ impl Graph {
         U
     }
 
-    pub fn johnson_vcol(&self) -> HashMap<i32, i32> {
-        let mut c: HashMap<i32, i32> = HashMap::new();
+    pub fn johnson_vcol(&self) -> HashMap<i32, u32> {
+        let mut c: HashMap<i32, u32> = HashMap::new();
         let mut V: HashSet<i32> = self.vertices.iter().copied().collect();
         let mut t = 1;
 

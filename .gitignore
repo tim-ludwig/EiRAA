@@ -12,3 +12,5 @@ Cargo.lock
 # IntelliJ Files
 .idea/
 EiRAA.iml
+*.dot
+output.svg
