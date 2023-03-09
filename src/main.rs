@@ -1,19 +1,18 @@
-mod graph;
 mod cnf;
 mod colored_graph;
-mod vars;
 pub mod dummies;
-use std::collections::HashMap;
-use graph::*;
+mod graph;
+mod vars;
 use dummies::EmptyColorizer;
+use graph::*;
+use std::collections::HashMap;
 
 use crate::colored_graph::ColoredGraph;
 
 fn main() {
     use std::fs::File;
 
-    let g =
-        graph! {
+    let g = graph! {
         0 => 1, 2, 3, 4;
         1 => 5, 6;
         2 => 7, 8;
@@ -30,8 +29,12 @@ fn main() {
     };
     let mut f = File::create("example1.dot").unwrap();
     colored_graph::render_to(
-        ColoredGraph::new(g.clone(), EmptyColorizer::edge_coloring, Graph::johnson_vcol),
-        &mut f
+        ColoredGraph::new(
+            g.clone(),
+            Graph::vizing_ecol,
+            EmptyColorizer::all_green_vertex_coloring,
+        ),
+        &mut f,
     );
 
     let mut c: HashMap<Edge, u32> = HashMap::new();
@@ -70,8 +73,7 @@ fn main() {
 
     println!("{:#?}", g.vizing_ecol());
 
-    let g =
-        graph! {
+    let g = graph! {
         0 => 1;
         1 => 2;
         2 => 3;
@@ -82,13 +84,10 @@ fn main() {
     let mut f2 = File::create("example2.dot").unwrap();
     colored_graph::render_to(
         ColoredGraph::new(g.clone(), Graph::vizing_ecol, Graph::johnson_vcol),
-        &mut f2
+        &mut f2,
     );
 
-    println!(
-        "{:#?}",
-        g.random_clique(3, |_| 20, &mut rand::thread_rng())
-    );
+    println!("{:#?}", g.random_clique(3, |_| 20, &mut rand::thread_rng()));
 
     let mut weights = HashMap::new();
 
