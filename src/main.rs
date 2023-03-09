@@ -1,9 +1,9 @@
 mod cnf;
 mod colored_graph;
-pub mod dummies;
+pub mod colorizer;
 mod graph;
 mod vars;
-use dummies::EmptyColorizer;
+use colorizer::Colorizer;
 use graph::*;
 use std::collections::HashMap;
 
@@ -15,9 +15,10 @@ fn main() {
     let g = graph! {
         0 => 1, 2, 3, 4;
         1 => 5, 6;
-        2 => 7, 8;
+        2 => 7, 8, 9;
         3 => 9, 10, 14;
         4 => 11, 13;
+        8 => 9;
         12 => 17;
         14 => 15;
         15 => 16;
@@ -31,8 +32,8 @@ fn main() {
     colored_graph::render_to(
         ColoredGraph::new(
             g.clone(),
-            Graph::vizing_ecol,
-            EmptyColorizer::all_green_vertex_coloring,
+            Colorizer::empty_edge_coloring,
+            Graph::johnson_vcol,
         ),
         &mut f,
     );
