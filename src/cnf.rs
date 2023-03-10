@@ -1,6 +1,6 @@
-use std::f32::consts::PI;
 use rand::prelude::*;
 use rand::seq::SliceRandom;
+use std::f32::consts::PI;
 
 #[derive(Debug)]
 pub struct CNF {
@@ -34,14 +34,14 @@ impl CNF {
 
     pub fn random_interpretation<R: Rng>(&self, rng: &mut R) -> Vec<i32> {
         (1..=self.var_count())
-            .map(|l| {
-                if rng.gen_bool(0.5) { l } else { -l }
-            })
+            .map(|l| if rng.gen_bool(0.5) { l } else { -l })
             .collect()
     }
 
     pub fn random_3sat<R, F>(&self, q: F, rng: &mut R) -> Option<Vec<i32>>
-        where R: Rng, F: Fn(i32) -> i32
+    where
+        R: Rng,
+        F: Fn(i32) -> i32,
     {
         let n = self.var_count();
         // versagenswahrscheinlichkeit nähert sich exponentiell schnell an die 1
@@ -53,22 +53,23 @@ impl CNF {
             let mut inter = self.random_interpretation(rng);
 
             for _ in 0..3 * n {
-                let unsatisfied_clauses: Vec<&Vec<i32>> = self.clauses
+                let unsatisfied_clauses: Vec<&Vec<i32>> = self
+                    .clauses
                     .iter()
-                    .filter(|&c| { !CNF::eval_clause(c, &inter) })
+                    .filter(|&c| !CNF::eval_clause(c, &inter))
                     .collect();
 
                 if unsatisfied_clauses.is_empty() {
                     return Some(inter);
                 }
 
-                let l =
-                    unsatisfied_clauses
-                        .choose(rng)
-                        .unwrap() // choose unsatisfied clause
-                        .choose(rng)
-                        .unwrap() // choose a literal
-                        .abs() - 1; // convert to variable index
+                let l = unsatisfied_clauses
+                    .choose(rng)
+                    .unwrap() // choose unsatisfied clause
+                    .choose(rng)
+                    .unwrap() // choose a literal
+                    .abs()
+                    - 1; // convert to variable index
 
                 inter[l as usize] *= -1; // flip interpretation of selected variable, satisfying the selected clause
             }

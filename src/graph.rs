@@ -1,13 +1,12 @@
-use std::cmp::{ max, min };
-use std::collections::{ HashMap, HashSet };
-use std::hash::{ Hash };
+use std::cmp::{max, min};
+use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 
-use std::vec::Vec;
 use rand::prelude::*;
-use std::{ io::Write };
+use std::io::Write;
+use std::vec::Vec;
 
-#[derive(Debug)]
-#[derive(Hash, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Hash, Clone, Copy, PartialEq, Eq)]
 pub struct Edge {
     pub u: i32,
     pub v: i32,
@@ -45,7 +44,10 @@ macro_rules! graph {
 
 impl Graph {
     pub fn new() -> Graph {
-        Graph { vertices: vec! {}, edges: vec! {} }
+        Graph {
+            vertices: vec![],
+            edges: vec![],
+        }
     }
 
     pub fn add_vertex(&mut self, v: i32) {
@@ -64,10 +66,7 @@ impl Graph {
     }
 
     pub fn degree(&self, u: i32) -> usize {
-        self.edges
-            .iter()
-            .filter(|e| (e.u == u || e.v == u))
-            .count()
+        self.edges.iter().filter(|e| (e.u == u || e.v == u)).count()
     }
 
     pub fn incident_edges(&self, u: i32) -> HashSet<Edge> {
@@ -90,10 +89,10 @@ impl Graph {
         self.edges.contains(&Edge::new(u, v))
     }
 
-    pub fn is_clique(&self, vert: &Vec<i32>) -> bool {
-        for i in 0..vert.len() {
-            for j in i + 1..vert.len() {
-                if !self.is_connected(vert[i], vert[j]) {
+    pub fn is_clique(&self, vertex_set: &Vec<i32>) -> bool {
+        for i in 0..vertex_set.len() {
+            for j in i + 1..vertex_set.len() {
+                if !self.is_connected(vertex_set[i], vertex_set[j]) {
                     return false;
                 }
             }
@@ -103,7 +102,9 @@ impl Graph {
     }
 
     pub fn random_clique<R, F>(&self, k: usize, q: F, rng: &mut R) -> Option<Vec<i32>>
-        where R: Rng, F: Fn(usize) -> usize
+    where
+        R: Rng,
+        F: Fn(usize) -> usize,
     {
         let n = self.vertices.len();
         // k size of searched clique
@@ -133,11 +134,7 @@ impl Graph {
     fn greedy_is_on_v(&self, mut V: HashSet<i32>) -> HashSet<i32> {
         let mut U: HashSet<i32> = HashSet::new();
 
-        while
-            let Some(u) = V.iter()
-                .copied()
-                .min_by_key(|&u| self.degree(u))
-        {
+        while let Some(u) = V.iter().copied().min_by_key(|&u| self.degree(u)) {
             U.insert(u);
             V.remove(&u);
             V = V.difference(&self.neighbours(u)).copied().collect();
@@ -193,17 +190,17 @@ impl Graph {
             return;
         }
 
-        let mut colors: Vec<u32> = vec! {};
-        let mut vertices: Vec<i32> = vec! {};
+        let mut colors: Vec<u32> = vec![];
+        let mut vertices: Vec<i32> = vec![];
 
         let mut U: HashSet<i32> = self.neighbours(u);
         let mut current_color = alpha;
 
-        while
-            let Some(w) = U.iter()
-                .copied()
-                .filter(|&w| *c.get(&Edge::new(u, w)).unwrap() == current_color)
-                .next()
+        while let Some(w) = U
+            .iter()
+            .copied()
+            .filter(|&w| *c.get(&Edge::new(u, w)).unwrap() == current_color)
+            .next()
         {
             U.remove(&w);
 
@@ -224,10 +221,7 @@ impl Graph {
                 c.insert(Edge::new(u, v), a);
             }
         } else {
-            let j = colors
-                .iter()
-                .position(|&x| x == current_color)
-                .unwrap();
+            let j = colors.iter().position(|&x| x == current_color).unwrap();
             let vj = *vertices.get(j).unwrap();
 
             colors.remove(0);
@@ -241,13 +235,12 @@ impl Graph {
             let mut prev = u;
             let mut next = vj;
             let mut col = beta;
-            while
-                let Some(v) = self
-                    .neighbours(next)
-                    .iter()
-                    .copied()
-                    .filter(|&v| c.get(&Edge::new(next, v)) == Some(&col))
-                    .next()
+            while let Some(v) = self
+                .neighbours(next)
+                .iter()
+                .copied()
+                .filter(|&v| c.get(&Edge::new(next, v)) == Some(&col))
+                .next()
             {
                 c.insert(Edge::new(prev, next), col);
                 c.remove(&Edge::new(next, v));
@@ -263,7 +256,10 @@ impl Graph {
 
     pub fn vizing_ecol(&self) -> HashMap<Edge, u32> {
         let mut c: HashMap<Edge, u32> = HashMap::new();
-        let mut g_new = Graph { vertices: self.vertices.clone(), edges: vec! {} };
+        let mut g_new = Graph {
+            vertices: self.vertices.clone(),
+            edges: vec![],
+        };
 
         let mut deg: u32 = 0;
 
@@ -294,16 +290,15 @@ impl Graph {
 
         g.vertices.push(*self.vertices.get(0).unwrap());
 
-        while
-            let Some(e) = self.edges
-                .iter()
-                .copied()
-                .filter(
-                    |e|
-                        (g.vertices.contains(&e.u) && !g.vertices.contains(&e.v)) ||
-                        (g.vertices.contains(&e.v) && !g.vertices.contains(&e.u))
-                )
-                .min_by_key(|e| weights.get(e).expect("All edges need a weight"))
+        while let Some(e) = self
+            .edges
+            .iter()
+            .copied()
+            .filter(|e| {
+                (g.vertices.contains(&e.u) && !g.vertices.contains(&e.v))
+                    || (g.vertices.contains(&e.v) && !g.vertices.contains(&e.u))
+            })
+            .min_by_key(|e| weights.get(e).expect("All edges need a weight"))
         {
             g.add_edge(e);
         }
@@ -312,7 +307,10 @@ impl Graph {
     }
 
     pub(crate) fn clone(&self) -> Graph {
-        Graph { vertices: self.vertices.clone(), edges: self.edges.clone() }
+        Graph {
+            vertices: self.vertices.clone(),
+            edges: self.edges.clone(),
+        }
     }
 }
 
@@ -326,7 +324,10 @@ pub fn johnson_witness(i: i32) -> Graph {
     let prev = johnson_witness(i - 1);
     let vertices: Vec<i32> = (1..=(2_i32).pow(i as u32)).collect();
 
-    let mut g = Graph { vertices, edges: vec! {} };
+    let mut g = Graph {
+        vertices,
+        edges: vec![],
+    };
 
     let offset = (2_i32).pow((i as u32) - 1);
 
