@@ -4,7 +4,7 @@
 - [ ] randomisiertes Teilstringmatching (Bitfolge)
 - [ ] Greedy vertex colouring (immer kleinste in der Nachbarschaft nicht vergebene)
 - [x] Johnson vertex colouring
-  - [ ] zeugen gegen Johnson
+  - [x] zeugen gegen Johnson
 - [x] Viesing
 - [ ] TSP
 - [ ] Eulerkreis auf einem Multigraphen suchen
